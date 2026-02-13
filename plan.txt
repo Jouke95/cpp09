@@ -1,0 +1,4 @@
+Ex00: std::map - key-value lookups voor datum/prijs
+Ex01: std::stack - perfect voor RPN
+Ex02: std::vector + std::list - maximaal contrast voor performance vergelijking!
+
