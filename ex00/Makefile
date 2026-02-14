@@ -1,4 +1,4 @@
-NAME = RPN
+NAME = bitcoin
 CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror
 SRCS = main.cpp BitcoinExchange.cpp
