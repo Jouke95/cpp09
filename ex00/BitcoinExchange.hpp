@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <sstream>
 
 class BitcoinExchange {
 	private:
@@ -10,21 +11,28 @@ class BitcoinExchange {
 
 		void	loadDatabase(const std::string& filename);
 		bool	parseDatabaseLine(const std::string& line, std::string& date, double& value);
-		double	getExchangeRate(const std::string& date);
+		bool	searchExchangeRate(const std::string& date, double& rate);
+		bool	parseInputFileLine(const std::string& line, std::string& date, std::string& value);
 
 		bool	isValidDate(const std::string& date);
 		bool 	checkDateFormat(const std::string& date);
 		bool	checkDateValues(int year, int month, int day);
 
-		bool	isValidValue(double value);
-		int		extractInt(const std::string& date, int start, int length);
-		bool	parseDouble(const std::string& str, double& result);
+		bool	extractInt(const std::string& date, int start, int length, int& result);
+		std::string	trimWhitespaces(const std::string& str);
 
-		
-		public:
+		template <typename T>
+		bool parse(const std::string& str, T& result) {
+			std::stringstream ss(str);
+			ss >> result;
+			if (ss.fail() || !ss.eof())
+				return false;
+			return true;
+		}
+
+	public:
 		BitcoinExchange();
 		void processInputFile(const std::string& filename);
-		void printDatabase();
 };
 
 #endif
