@@ -6,6 +6,8 @@ BitcoinExchange::BitcoinExchange() {
 	loadDatabase("data.csv");
 }
 
+BitcoinExchange::~BitcoinExchange() {}
+
 void BitcoinExchange::loadDatabase(const std::string& filename) {
 	std::ifstream file(filename);
 	if (!file.is_open()) {

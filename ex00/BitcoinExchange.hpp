@@ -30,8 +30,12 @@ class BitcoinExchange {
 			return true;
 		}
 
+		BitcoinExchange(const BitcoinExchange& other);
+		BitcoinExchange& operator=(const BitcoinExchange& other);
+
 	public:
 		BitcoinExchange();
+		~BitcoinExchange() {}
 		void processInputFile(const std::string& filename);
 };
 
