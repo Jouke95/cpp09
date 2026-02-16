@@ -35,7 +35,7 @@ class BitcoinExchange {
 
 	public:
 		BitcoinExchange();
-		~BitcoinExchange() {}
+		~BitcoinExchange();
 		void processInputFile(const std::string& filename);
 };
 
