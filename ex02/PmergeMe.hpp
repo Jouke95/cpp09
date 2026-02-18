@@ -20,9 +20,9 @@ class PmergeMe {
 		PmergeMe& operator=(const PmergeMe& other);
 
 		void sortVector();
-		void sortVector(std::vector<std::pair<int,int> > &pairs);
 
 		void sortList();
+
 		bool parseInput(int argc, char **argv);
 
 		template <typename T>
