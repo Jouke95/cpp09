@@ -31,7 +31,51 @@ void PmergeMe::displayResults() {
 	std::cout << std::endl;
 }
 
+void PmergeMe::sortVector(std::vector<std::pair<int,int> > &pairs) {
+	if (pairs.size() == 1) {
+		if (pairs[0].first < pairs[0].second)
+			std::swap(pairs[0].first, pairs[0].second);
+		return;
+	}
+	for (size_t i = 0; i < pairs.size(); i++) {
+		if (pairs[i].first < pairs[i].second)
+			std::swap(pairs[i].first, pairs[i].second);
+	}
+	std::vector<std::pair<int, int> > winners;
+	std::vector<std::pair<int, int> > losers;
+	for (size_t i = 0; i < pairs.size() / 2; i++) {
+		if (pairs[i*2].first > pairs[i*2+1].first) {
+			winners.push_back(pairs[i*2]);
+			losers.push_back(pairs[i*2+1]);
+		}
+		else {
+			winners.push_back(pairs[i*2+1]);
+			losers.push_back(pairs[i*2]);
+		}
+	}
+	sortVector(winners);
+	std::vector<int> mainChain;
+	std::vector<int> pend;
+	for (size_t i = 0; i < winners.size(); i++) {
+		mainChain.push_back(winners[i].first);
+		pend.push_back(losers[i].second);
+	}
+	mainChain.insert(pend.begin(), 1);
+}
+
 void PmergeMe::sortVector() {
+	if (vect.size() == 1)
+		return;
+	std::vector<std::pair<int, int> > pairs;
+	for (size_t i = 0; i < vect.size() / 2; i++) {
+		std::pair<int, int> pair;
+		pair.first = vect[i*2];
+		pair.second = vect[i*2+1];
+		pairs.push_back(pair);
+	}
+	sortVector(pairs);
+
+
 
 }
 
