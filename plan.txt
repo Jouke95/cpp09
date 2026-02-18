@@ -2,3 +2,4 @@ Ex00: std::map - key-value lookups voor datum/prijs
 Ex01: std::stack - perfect voor RPN
 Ex02: std::vector + std::list - maximaal contrast voor performance vergelijking!
 
+https://medium.com/@mohammad.ali.ibrahim.525/ford-johnson-algorithm-merge-insertion-4b024f0c3d42
