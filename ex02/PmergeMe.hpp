@@ -20,8 +20,13 @@ class PmergeMe {
 		PmergeMe& operator=(const PmergeMe& other);
 
 		void sortVector();
+		void sortPairsByWinners(std::vector<std::pair<int, int>> &pairs);
 
 		void sortList();
+
+		int jacobsthal(int n);
+		void binaryInsertPair(std::vector<std::pair<int,int>>& chain, std::pair<int,int> val, int upperBound);
+		void insertLoserPairs(std::vector<std::pair<int,int>>& sorted, std::vector<std::pair<int,int>>& subWinners, std::vector<std::pair<int,int>>& subLosers);
 
 		bool parseInput(int argc, char **argv);
 
