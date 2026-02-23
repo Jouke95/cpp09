@@ -22,6 +22,7 @@ PmergeMe::PmergeMe(int argc, char **argv) {
 
 	validInput = true;
 	original = vect;
+	vectCompCount = 0;
 }
 
 PmergeMe::~PmergeMe() {}
@@ -73,10 +74,10 @@ void PmergeMe::displayResults() {
 	printSequence("After\t", vect);
 
 	std::cout << "Time to process a range of " << vect.size() 
-				<< " elements with std::vector : " << vectorTime << " us" << std::endl;
+				<< " elements with std::vector : " << vectorTime << " microseconds" << std::endl;
 
 	std::cout << "Time to process a range of " << vect.size() 
-				<< " elements with std::deque : " << dequeTime << " us" << std::endl;
+				<< " elements with std::deque : " << dequeTime << " microseconds" << std::endl;
 
 	for (int i = 0; i < (int)vect.size() - 1; i++) {
 		if (vect[i] > vect[i+1]) {
@@ -84,7 +85,9 @@ void PmergeMe::displayResults() {
 			return;
 		}
 	}
-	std::cout << "SORTED!" << std::endl;
+	// std::cout << "SORTED!" << std::endl;
+
+	// std::cout << "Vector comparison counter: " << vectCompCount << std::endl;
 }
 
 int PmergeMe::jacobsthal(int n) {
@@ -98,6 +101,7 @@ void PmergeMe::binaryInsertInt(std::vector<int>& chain, int val, int upperBound)
 	int high = upperBound;
 	while (low < high) {
 		int mid = (low + high) / 2;
+		vectCompCount++;
 		if (chain[mid] < val)
 			low = mid + 1;
 		else
@@ -109,8 +113,10 @@ void PmergeMe::binaryInsertInt(std::vector<int>& chain, int val, int upperBound)
 void PmergeMe::binaryInsertPair(PairVector& chain, CombinedPair val, int upperBound) {
 	int low = 0;
 	int high = upperBound;
+
 	while (low < high) {
 		int mid = (low + high) / 2;
+		vectCompCount++;
 		if (chain[mid].first < val.first)
 			low = mid + 1;
 		else
@@ -119,7 +125,7 @@ void PmergeMe::binaryInsertPair(PairVector& chain, CombinedPair val, int upperBo
 	chain.insert(chain.begin() + low, val);
 }
 
-void PmergeMe::insertLoserPairs(PairVector& sorted, PairVector& subWinners, PairVector& subLosers) {
+void PmergeMe::insertLoserPairs(PairVector& sorted, PairVector& subWinners, PairVector& subLosers, CombinedPair oddPair) {
 	int pendSize = (int)subLosers.size();
 
 	sorted.insert(sorted.begin(), subLosers[0]);
@@ -131,11 +137,13 @@ void PmergeMe::insertLoserPairs(PairVector& sorted, PairVector& subWinners, Pair
 			jacob = pendSize;
 
 		for (int i = jacob -1; i >= prev; i--) {
-			int upperBound = 0;
-			for (int j = 0; j < (int)sorted.size(); j++) {
-				if (subWinners[i].first == sorted[j].first) {
-					upperBound = j;
-					break;
+			int upperBound = (int)sorted.size();
+			if (subLosers[i] != oddPair) {
+				for (int j = 0; j < (int)sorted.size(); j++) {
+					if (subWinners[i].first == sorted[j].first) {
+						upperBound = j;
+						break;
+					}
 				}
 			}
 			binaryInsertPair(sorted, subLosers[i], upperBound);
@@ -144,7 +152,7 @@ void PmergeMe::insertLoserPairs(PairVector& sorted, PairVector& subWinners, Pair
 	}
 }
 
-void PmergeMe::insertPendChain(const PairVector& pairs, std::vector<int>& main, std::vector<int>& pend) {
+void PmergeMe::insertPendChain(const PairVector& pairs, std::vector<int>& main, std::vector<int>& pend, int straggler) {
 	int pendSize = (int)pend.size();
 
 	main.insert(main.begin(), pend[0]);
@@ -156,11 +164,13 @@ void PmergeMe::insertPendChain(const PairVector& pairs, std::vector<int>& main, 
 			jacob = pendSize;
 
 		for (int i = jacob - 1; i >= prev; i--) {
-			int upperBound = 0;
-			for (int j = 0; j < (int)main.size(); j++) {
-				if (main[j] == pairs[i].first) {
-					upperBound = j;
-					break;
+			int upperBound = (int)main.size();
+			if (pend[i] != straggler) {
+				for (int j = 0; j < (int)main.size(); j++) {
+					if (main[j] == pairs[i].first) {
+						upperBound = j;
+						break;
+					}
 				}
 			}
 			binaryInsertInt(main, pend[i], upperBound);
@@ -173,7 +183,7 @@ void PmergeMe::sortPairsByWinners(PairVector& pairs) {
 	if (pairs.size() == 1) return;
 
 	bool hasOdd = (pairs.size() % 2 == 1);
-	CombinedPair oddPair;
+	CombinedPair oddPair = {-1, -1};
 	if (hasOdd) {
 		oddPair = pairs.back();
 		pairs.pop_back();
@@ -191,6 +201,7 @@ void PmergeMe::sortPairsByWinners(PairVector& pairs) {
 			winner = pairs[i*2+1];
 			loser = pairs[i*2];
 		}
+		vectCompCount++;
 		pairOfPairs.push_back(std::make_pair(winner, loser));
 		subWinners.push_back(winner);
 	}
@@ -213,10 +224,11 @@ void PmergeMe::sortPairsByWinners(PairVector& pairs) {
 		subLosers.push_back(pairOfPairs[i].second);
 
 	PairVector result = subWinners;
-	insertLoserPairs(result, subWinners, subLosers);
 
-	if (hasOdd) 
-		binaryInsertPair(result, oddPair, (int)result.size());
+	if (hasOdd)
+		subLosers.push_back(oddPair);
+
+	insertLoserPairs(result, subWinners, subLosers, oddPair);
 
 	pairs = result;
 }
@@ -226,7 +238,7 @@ void PmergeMe::sortVector() {
 		return;
 
 	bool hasOdd = (vect.size() % 2 == 1);
-	int straggler;
+	int straggler = -1;
 	if (hasOdd) {
 		straggler = vect.back();
 		vect.pop_back();
@@ -240,8 +252,10 @@ void PmergeMe::sortVector() {
 		pairs.push_back(pair);
 	}
 	for (int i = 0; i < (int)pairs.size(); i++) {
-		if (pairs[i].second > pairs[i].first)
+		vectCompCount++;
+		if (pairs[i].second > pairs[i].first) {
 			std::swap(pairs[i].first, pairs[i].second);
+		}
 	}
 
 	sortPairsByWinners(pairs);
@@ -253,10 +267,10 @@ void PmergeMe::sortVector() {
 		pend.push_back(pairs[i].second);
 	}
 
-	insertPendChain(pairs, main, pend);
-
 	if (hasOdd)
-		binaryInsertInt(main, straggler, (int)main.size());
+		pend.push_back(straggler);
+
+	insertPendChain(pairs, main, pend, straggler);
 
 	vect = main;
 }
@@ -274,7 +288,7 @@ void PmergeMe::binaryInsertIntDeque(std::deque<int>& chain, int val, int upperBo
 	chain.insert(chain.begin() + low, val);
 }
 
-void PmergeMe::insertPendChainDeque(const PairVector& pairs, std::deque<int>& main, std::deque<int>& pend) {
+void PmergeMe::insertPendChainDeque(const PairVector& pairs, std::deque<int>& main, std::deque<int>& pend, int straggler) {
 	int pendSize = (int)pend.size();
 
 	main.insert(main.begin(), pend[0]);
@@ -286,11 +300,13 @@ void PmergeMe::insertPendChainDeque(const PairVector& pairs, std::deque<int>& ma
 			jacob = pendSize;
 
 		for (int i = jacob - 1; i >= prev; i--) {
-			int upperBound = 0;
-			for (int j = 0; j < (int)main.size(); j++) {
-				if (main[j] == pairs[i].first) {
-					upperBound = j;
-					break;
+			int upperBound = (int)main.size();
+			if (pend[i] != straggler) {
+				for (int j = 0; j < (int)main.size(); j++) {
+					if (main[j] == pairs[i].first) {
+						upperBound = j;
+						break;
+					}
 				}
 			}
 			binaryInsertIntDeque(main, pend[i], upperBound);
@@ -304,7 +320,7 @@ void PmergeMe::sortDeque() {
 		return;
 
 	bool hasOdd = (deq.size() % 2 == 1);
-	int straggler;
+	int straggler = -1;
 	if (hasOdd) {
 		straggler = deq.back();
 		deq.pop_back();
@@ -331,10 +347,10 @@ void PmergeMe::sortDeque() {
 		pend.push_back(pairs[i].second);
 	}
 
-	insertPendChainDeque(pairs, main, pend);
-
 	if (hasOdd)
-		binaryInsertIntDeque(main, straggler, (int)main.size());
+		pend.push_back(straggler);
+
+	insertPendChainDeque(pairs, main, pend, straggler);
 
 	deq = main;
 }

@@ -17,11 +17,12 @@ class PmergeMe {
 	private:
 		std::vector<int> vect;
 		std::deque<int> deq;
-
+	
 		std::vector<int> original;
 		bool validInput;
 		double vectorTime;
 		double dequeTime;
+		int vectCompCount;
 
 		PmergeMe(const PmergeMe& other) = delete;
 		PmergeMe& operator=(const PmergeMe& other) = delete;
@@ -35,9 +36,9 @@ class PmergeMe {
 		void binaryInsertInt(std::vector<int>& chain, int val, int upperBound);
 		void binaryInsertIntDeque(std::deque<int>& chain, int val, int upperBound);
 		void sortPairsByWinners(PairVector& pairs);
-		void insertLoserPairs(PairVector& sorted, PairVector& subWinners, PairVector& subLosers);
-		void insertPendChain(const PairVector& pairs, std::vector<int>& main, std::vector<int>& pend);
-		void insertPendChainDeque(const PairVector& pairs, std::deque<int>& main, std::deque<int>& pend);
+		void insertLoserPairs(PairVector& sorted, PairVector& subWinners, PairVector& subLosers, CombinedPair oddPair);
+		void insertPendChain(const PairVector& pairs, std::vector<int>& main, std::vector<int>& pend, int straggler);
+		void insertPendChainDeque(const PairVector& pairs, std::deque<int>& main, std::deque<int>& pend, int straggler);
 
 		template <typename T>
 		bool parse(const std::string& str, T& result) {
