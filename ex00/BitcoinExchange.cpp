@@ -4,6 +4,9 @@
 
 BitcoinExchange::BitcoinExchange() {
 	loadDatabase("data.csv");
+	if (_database.empty()) {
+		throw std::runtime_error("Error: database is empty");
+	}
 }
 
 BitcoinExchange::~BitcoinExchange() {}

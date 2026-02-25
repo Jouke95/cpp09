@@ -39,7 +39,7 @@ bool PmergeMe::parseInput(int argc, char **argv) {
 			return false;
 		if (number <= 0)
 			return false;
-		if (mySet.count(number))
+		if (mySet.contains(number))
 			return false;
 		mySet.insert(number);
 		vect.push_back(number);
@@ -125,7 +125,7 @@ void PmergeMe::binaryInsertPair(PairVector& chain, CombinedPair val, int upperBo
 	chain.insert(chain.begin() + low, val);
 }
 
-void PmergeMe::insertLoserPairs(PairVector& sorted, PairVector& subWinners, PairVector& subLosers, CombinedPair oddPair) {
+void PmergeMe::insertLoserPairs(PairVector& sorted, PairVector& subWinners, PairVector& subLosers, CombinedPair straggler) {
 	int pendSize = (int)subLosers.size();
 
 	sorted.insert(sorted.begin(), subLosers[0]);
@@ -138,7 +138,7 @@ void PmergeMe::insertLoserPairs(PairVector& sorted, PairVector& subWinners, Pair
 
 		for (int i = jacob -1; i >= prev; i--) {
 			int upperBound = (int)sorted.size();
-			if (subLosers[i] != oddPair) {
+			if (subLosers[i] != straggler) {
 				for (int j = 0; j < (int)sorted.size(); j++) {
 					if (subWinners[i].first == sorted[j].first) {
 						upperBound = j;
@@ -183,9 +183,9 @@ void PmergeMe::sortPairsByWinners(PairVector& pairs) {
 	if (pairs.size() == 1) return;
 
 	bool hasOdd = (pairs.size() % 2 == 1);
-	CombinedPair oddPair = {-1, -1};
+	CombinedPair straggler = {-1, -1};
 	if (hasOdd) {
-		oddPair = pairs.back();
+		straggler = pairs.back();
 		pairs.pop_back();
 	}
 
@@ -226,9 +226,9 @@ void PmergeMe::sortPairsByWinners(PairVector& pairs) {
 	PairVector result = subWinners;
 
 	if (hasOdd)
-		subLosers.push_back(oddPair);
+		subLosers.push_back(straggler);
 
-	insertLoserPairs(result, subWinners, subLosers, oddPair);
+	insertLoserPairs(result, subWinners, subLosers, straggler);
 
 	pairs = result;
 }
