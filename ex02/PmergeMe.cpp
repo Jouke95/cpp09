@@ -23,6 +23,8 @@ PmergeMe::PmergeMe(int argc, char **argv) {
 	validInput = true;
 	original = vect;
 	vectCompCount = 0;
+	vectorTime = 0;
+	dequeTime = 0;
 }
 
 PmergeMe::~PmergeMe() {}
@@ -53,17 +55,20 @@ void PmergeMe::sort() {
 	if (!validInput)
 		return;
 
-	std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
-	sortVector();
-	std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
-	std::chrono::duration<double, std::micro> duration = end - start;
-	vectorTime = duration.count();
+	typedef std::chrono::high_resolution_clock			Clock;
+	typedef std::chrono::duration<double, std::micro>	Micro;
 
-	start = std::chrono::high_resolution_clock::now();
+	Clock::time_point start, end;
+
+	start = Clock::now();
+	sortVector();
+	end = Clock::now();
+	vectorTime = Micro(end - start).count();
+
+	start = Clock::now();
 	sortDeque();
-	end = std::chrono::high_resolution_clock::now();
-	duration = end - start;
-	dequeTime = duration.count();
+	end = Clock::now();
+	dequeTime = Micro(end - start).count();
 }
 
 void PmergeMe::displayResults() {
@@ -77,14 +82,14 @@ void PmergeMe::displayResults() {
 				<< " elements with std::vector : " << vectorTime << " microseconds" << std::endl;
 
 	std::cout << "Time to process a range of " << vect.size() 
-				<< " elements with std::deque : " << dequeTime << " microseconds" << std::endl;
+				<< " elements with std::deque :  " << dequeTime << " microseconds" << std::endl;
 
-	for (int i = 0; i < (int)vect.size() - 1; i++) {
-		if (vect[i] > vect[i+1]) {
-			std::cout << "NOT SORTED at index " << i << std::endl;
-			return;
-		}
-	}
+	// for (int i = 0; i < (int)vect.size() - 1; i++) {
+	// 	if (vect[i] > vect[i+1]) {
+	// 		std::cout << "NOT SORTED at index " << i << std::endl;
+	// 		return;
+	// 	}
+	// }
 	// std::cout << "SORTED!" << std::endl;
 
 	// std::cout << "Vector comparison counter: " << vectCompCount << std::endl;
